@@ -1,0 +1,4 @@
+[MANAGER 11064]: Esperando al proceso hijo PA(11065)
+[MANAGER 11064]: Ha terminado el proceso hijo PA(11065)
+[MANAGER 11064]: Esperando a los hijos PB(11066) y PC(11067)
+[MANAGER 11064]: Saliendo del programa...
