@@ -1,35 +1,54 @@
+#define _POSIX_C_SOURCE 200809L
+
+#include <stdio.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <string.h>
+#include <stdlib.h>
+#include <signal.h>
+
 #include "definitions.h"
 
-int execute_child(char *name, FILE *log_fp);
-void interrupt_handler(int sig_num, FILE *log_fp, pid_t *pa, pid_t *pb, pid_t *pc);
+pid_t gp_pa = 0, gp_pb = 0, gp_pc = 0;
+FILE *gp_log;
+
+int execute_child(char *name);
+void interrupt_handler(int);
 
 int main(int argc, char **argv){
-    pid_t *pa = NULL, *pb = NULL, *pc = NULL, wpid;
-    FILE *log_fp;
+    pid_t wpid;
 
-    signal(SIGTERM, interrupt_handler);
-
-    if((log_fp = fopen(LOG_FILENAME, "w")) == NULL){
-        fprintf(stderr, "Error al crear el archivo log.txt\n");
+    if((gp_log = fopen(LOG_FILENAME, "w")) == NULL){
+        fprintf(stderr, "Error al abrir el archivo log.txt\n");
         exit(EXIT_FAILURE);
-    }
-    *pa = execute_child("pa", log_fp);
-    wait(NULL);
-    fprintf(log_fp, "Creación de directorios finalizada\n");
+    }    
 
-    *pb = execute_child("pb", log_fp);
-    *pc = execute_child("pc", log_fp);
+    if(signal(SIGINT, interrupt_handler) == SIG_ERR){
+        fprintf(stderr, "No se ha podido crear el manejador de señal\n");
+    }
+
+    gp_pa = execute_child("pa");
+    wait(NULL);
+    fprintf(gp_log, "Creación de directorios finalizada\n");
+
+    gp_pb = execute_child("pb");
+    gp_pc = execute_child("pc");
 
     while((wpid = wait(NULL)) > 0){
-        if(wpid == pb)  printf("Creación de modelos de examen finalizada\n");
-        else printf("Creación de archivos para alcanzar la nota de corte finalizada\n");
+        if(wpid == gp_pb)  fprintf(gp_log, "Creación de modelos de examen finalizada\n");
+        else fprintf(gp_log, "Creación de archivos para alcanzar la nota de corte finalizada\n");
     }
     
-    fprintf(log_fp, "FIN DEL PROGRAMA");
+    fprintf(gp_log, "FIN DEL PROGRAMA\n");
+
+    fclose(gp_log);
+
     return EXIT_SUCCESS;
 }
-
-int execute_child(char *name, FILE *log_fp){
+ 
+int execute_child(char *name){
     int program_name_length = strlen(EXEC_DIR) + strlen(name) + 1;
     char *program_name = malloc(program_name_length);
     snprintf(program_name, program_name_length, "%s%s", EXEC_DIR, name);
@@ -37,21 +56,27 @@ int execute_child(char *name, FILE *log_fp){
     int child_pid = fork();
 
     if(child_pid < 0){
-        fprintf(log_fp, "Ha fallado la creación del proceso %s", name);
+        fprintf(gp_log, "Ha fallado la creación del proceso %s\n", name);
         exit(EXIT_FAILURE);
     }
     else if (child_pid == 0){
         execlp(program_name, name, NULL);
-        fprintf(log_fp, "Error en la llamada a %s\n", name);
+        fprintf(gp_log, "Error en la llamada a %s\n", name);
         exit(EXIT_FAILURE);
     }
     return child_pid;
 }
 
-void interrupt_handler(int sig_num, FILE *log_fp, pid_t *pa, pid_t *pb, pid_t *pc){
-    if(pa) kill(pa, SIGKILL);
-    if(pb) kill(pb, SIGKILL);
-    if(pc) kill(pc, SIGKILL);
-    execute_child("pd", log_fp);
-    fprintf("Interrupción detectada, eliminado directorio estudiantes y terminando procesos...");
+void interrupt_handler(int signum){
+    
+    fprintf(gp_log, "Interrupción detectada, eliminado directorio estudiantes y terminando procesos...\n");
+
+    if(gp_pa) kill(gp_pa, SIGKILL);
+    if(gp_pb) kill(gp_pb, SIGKILL);
+    if(gp_pc) kill(gp_pc, SIGKILL);
+
+    execute_child("pd");
+
+    fclose(gp_log);
+    exit(EXIT_SUCCESS);
 }
