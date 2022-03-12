@@ -1,13 +1,3 @@
-#include <stdio.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <string.h>
-#include <dirent.h>
-#include <stdlib.h>
-
 #define MAX_LINE 255
 #define NUM_EXAMS 2
 #define MIN_GRADE 5
