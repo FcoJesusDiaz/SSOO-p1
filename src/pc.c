@@ -1,5 +1,8 @@
 #include "definitions.h"
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 void compute_neccesary_grade(char *dni, char *model, char *first_grade);
 
@@ -9,9 +12,7 @@ int main(int argc, char **argv){
     char *model = NULL;
     char *first_grade = NULL;
     char *lineptr = malloc(MAX_LINE);
-    if(!(fptr && lineptr)){
-        return EXIT_FAILURE;
-    }
+    
     while(fgets(lineptr, MAX_LINE, fptr)){
         if((dni = strtok(lineptr, " ")) && (model = strtok(NULL, " ")) && (first_grade = strtok(NULL, " "))){
             compute_neccesary_grade(dni, model, first_grade);

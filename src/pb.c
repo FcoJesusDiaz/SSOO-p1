@@ -1,3 +1,10 @@
+#define _POSIX_C_SOURCE 200809L
+
+#include <stdio.h>
+#include <unistd.h>
+#include <string.h>
+#include <stdlib.h>
+
 #include "definitions.h"
 
 void copy_model(char *dni, char *model);
@@ -7,9 +14,7 @@ int main(int argc, char **argv){
     char *dni = NULL;
     char *model = NULL;
     char *lineptr = malloc(MAX_LINE);
-    if(!(fptr && lineptr)){
-        return EXIT_FAILURE;
-    }
+
     while(fgets(lineptr, MAX_LINE, fptr)){
         if((dni = strtok(lineptr, " ")) && (model = strtok(NULL, " "))){
             copy_model(dni, model);
