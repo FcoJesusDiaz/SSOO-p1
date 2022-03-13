@@ -6,6 +6,7 @@
 #include <dirent.h>
 #include <string.h>
 #include <stdlib.h>
+#include <errno.h>
 
 
 void create_directory(char *name);
@@ -14,6 +15,9 @@ int main(int argc, char **argv){
     FILE *fptr = fopen(STUDENTS_INFO, "r");
     char *dni = NULL;
     char *lineptr = malloc(MAX_LINE);
+
+    /*Creates students directory if it does not exists*/
+    if(!opendir(STUDENTS_DIR)) mkdir(STUDENTS_DIR, 0770);
 
     while(fgets(lineptr, MAX_LINE, fptr) && (dni = strtok(lineptr, " "))){    
         create_directory(dni);
@@ -29,6 +33,6 @@ void create_directory(char *name){
     strcat(directory_name, name);
     DIR* dir = opendir(name);
     if (!dir){
-        mkdir(directory_name, 0770);
+       mkdir(directory_name, 0770);
     }
 }

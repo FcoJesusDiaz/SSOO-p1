@@ -27,7 +27,7 @@ int main(int argc, char **argv){
 void copy_model(char *dni, char *model){
     int pdf_file_length = strlen("Modelo") + strlen(model) + strlen(".pdf") + 1;
     int target_name_length = strlen(EXAMS_DIR) + pdf_file_length;
-    int linkpath_length = strlen(STUDENTS_DIR) + strlen(dni) + strlen("/") + pdf_file_length;
+    int linkpath_length = strlen(STUDENTS_DIR) + strlen(dni) + pdf_file_length + 1;
 
     char *target = malloc(target_name_length);
     char *linkpath = malloc(linkpath_length);
