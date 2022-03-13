@@ -8,6 +8,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <signal.h>
+#include <errno.h>
 
 #include "definitions.h"
 
@@ -19,6 +20,8 @@ void interrupt_handler(int);
 
 int main(int argc, char **argv){
     pid_t wpid;
+    int fd[2];
+    float average_score;
 
     if((gp_log = fopen(LOG_FILENAME, "w")) == NULL){
         fprintf(stderr, "Error al abrir el archivo log.txt\n");
@@ -27,11 +30,17 @@ int main(int argc, char **argv){
 
     if(signal(SIGINT, interrupt_handler) == SIG_ERR){
         fprintf(stderr, "No se ha podido crear el manejador de señal\n");
+        exit(EXIT_FAILURE);
     }
 
     gp_pa = execute_child("pa");
     wait(NULL);
     fprintf(gp_log, "Creación de directorios finalizada\n");
+    
+    if(pipe(fd) == -1 || dup2(fd[PIPE_WRITE], STDOUT_FILENO) == -1){
+        fprintf(stderr, "Error en el manejo de la tubería: %s\n", strerror(errno));
+        exit(EXIT_FAILURE);
+    }
 
     gp_pb = execute_child("pb");
     gp_pc = execute_child("pc");
@@ -40,18 +49,23 @@ int main(int argc, char **argv){
         if(wpid == gp_pb)  fprintf(gp_log, "Creación de modelos de examen finalizada\n");
         else fprintf(gp_log, "Creación de archivos para alcanzar la nota de corte finalizada\n");
     }
+
+    close(fd[PIPE_WRITE]);
+    read(fd[PIPE_READ], &average_score, sizeof(average_score));
     
+    fprintf(gp_log, "La nota media del primer examen es: %.2f\n", average_score);
     fprintf(gp_log, "FIN DEL PROGRAMA\n");
 
     fclose(gp_log);
+    close(fd[PIPE_READ]);
 
     return EXIT_SUCCESS;
 }
  
 int execute_child(char *name){
-    int program_name_length = strlen(EXEC_DIR) + strlen(name) + 1;
+    int program_name_length = strlen(EXEC_DIR) + strlen(name) + 2;
     char *program_name = malloc(program_name_length);
-    snprintf(program_name, program_name_length, "%s%s", EXEC_DIR, name);
+    snprintf(program_name, program_name_length, "%s/%s", EXEC_DIR, name);
 
     int child_pid = fork();
 

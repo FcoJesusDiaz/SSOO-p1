@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 void compute_neccesary_grade(char *dni, char *model, char *first_grade);
 
@@ -12,12 +13,21 @@ int main(int argc, char **argv){
     char *model = NULL;
     char *first_grade = NULL;
     char *lineptr = malloc(MAX_LINE);
-    
+
+    int nStudents = 0;
+    float sum_of_grades = 0;
+    float average = 0;
+
     while(fgets(lineptr, MAX_LINE, fptr)){
         if((dni = strtok(lineptr, " ")) && (model = strtok(NULL, " ")) && (first_grade = strtok(NULL, " "))){
             compute_neccesary_grade(dni, model, first_grade);
+            sum_of_grades += atoi(first_grade);
+            nStudents++;
         }
     }
+
+    average = sum_of_grades/nStudents;
+    write(STDOUT_FILENO, &average, sizeof(average));
     free(lineptr);
     return EXIT_SUCCESS;
 }
