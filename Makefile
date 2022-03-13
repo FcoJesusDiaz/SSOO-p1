@@ -8,10 +8,10 @@ CFLAGS := -I$(DIRHEA) -c -Wall -std=c99
 LDLIBS := -lpthread -lrt
 CC := gcc
 
-all : dirs manager pa pb pc pd
+all : dirs manager pa pb pc pd backup
 
 dirs:
-	mkdir -p $(DIROBJ) $(DIREXE)
+	mkdir -p $(DIROBJ) $(DIREXE) $(DIRDEBUG)
 
 debugging:
 	$(CC) -I$(DIRHEA) -g $(DIRSRC)manager.c -o $(DIRDEBUG)manager $(LDLIBS)
@@ -19,6 +19,7 @@ debugging:
 	$(CC) -I$(DIRHEA) -g $(DIRSRC)pb.c -o $(DIRDEBUG)pb $(LDLIBS)
 	$(CC) -I$(DIRHEA) -g $(DIRSRC)pc.c -o $(DIRDEBUG)pc $(LDLIBS)
 	$(CC) -I$(DIRHEA) -g $(DIRSRC)pd.c -o $(DIRDEBUG)pd $(LDLIBS)
+	$(CC) -I$(DIRHEA) -g $(DIRSRC)backup.c -o $(DIRDEBUG)backup $(LDLIBS)
 
 manager: $(DIROBJ)manager.o 
 	$(CC) -o $(DIREXE)$@ $^ $(LDLIBS)
@@ -35,14 +36,20 @@ pc: $(DIROBJ)pc.o
 pd: $(DIROBJ)pd.o 
 	$(CC) -o $(DIREXE)$@ $^ $(LDLIBS)
 
+backup: $(DIROBJ)backup.o
+	$(CC) -o $(DIREXE)$@ $^ $(LDLIBS)
+
 $(DIROBJ)%.o: $(DIRSRC)%.c
 	$(CC) $(CFLAGS) $^ -o $@
 
 test:
 	./$(DIREXE)manager
 
-solution:
-	./$(DIREXE)manager
+daemon:
+	./$(DIREXE)backup
+
+rm_students:
+	./$(DIREXE)pd
 
 clean : 
 	rm -rf *~ core $(DIROBJ) $(DIREXE) $(DIRDEBUG) $(DIRHEA)*~ $(DIRSRC)*~
