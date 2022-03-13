@@ -1,4 +1,14 @@
-#define _POSIX_C_SOURCE 200809L
+/*Code written by Francisco Jesús Díaz Pellejero
+  Email: FcoJesus.Diaz@alu.uclm.es
+  Github repository source code: https://github.com/FcoJesusDiaz/SSOO-p1.git
+  ---------------------------------------------------------------------------------
+  Code related to the backup process. For the recursive copying of the entire project
+  I could have used the system() function but i prefered to use opendir(), readdir(), etc
+  because it is less resource heavy.*/
+
+
+/*HEADERS*/
+#define _POSIX_C_SOURCE 200809L /*Needed for the snprintf function*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -11,15 +21,16 @@
 
 #include "definitions.h"
 
+/*DECLARATION OF FUNCTIONS*/
 int backup_dir(char *target, char *source);
 
+/*MAIN*/
 int main(int argc, char* argv[]){
     pid_t process_id = 0;
     pid_t sid = 0;
 
     process_id = fork();
     if (process_id < 0){
-        printf("fork failed!\n");
         exit(EXIT_FAILURE);
     }
 
@@ -48,15 +59,16 @@ int main(int argc, char* argv[]){
     close(STDOUT_FILENO);
     close(STDERR_FILENO);
 
-    /*Creates backup directory if it does not exists*/
-    if(!opendir(BACKUP_DIR)) mkdir(BACKUP_DIR, 0770);
-
     while (1){
+        /*Creates backup directory if it does not exists*/
+        if(!opendir(BACKUP_DIR)) mkdir(BACKUP_DIR, 0770);
+
         backup_dir(PROJECT_NAME, BACKUP_DIR);
         sleep(60);
     }
 }
 
+/*DEFINITION OF FUNCTIONS*/
 int backup_dir(char *target, char *source){
     DIR *dir_stream = opendir(target);
     struct dirent *file;

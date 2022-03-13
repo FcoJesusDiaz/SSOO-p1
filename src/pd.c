@@ -1,3 +1,13 @@
+/*Code written by Francisco Jesús Díaz Pellejero
+  Email: FcoJesus.Diaz@alu.uclm.es
+  Github repository source code: https://github.com/FcoJesusDiaz/SSOO-p1.git
+  ---------------------------------------------------------------------------------
+  Code related to the pd process. For the recursive removal of the students directory
+  I could have used the system() function but I prefered to use opendir(), readdir(), etc
+  because it is less resource heavy.*/
+
+
+/*HEADERS*/
 #define _POSIX_C_SOURCE 200809L
 
 #include <stdio.h>
@@ -11,8 +21,11 @@
 
 #include "definitions.h"
 
+/*DECLARATION OF FUNCTIONS*/
 int remove_directory(char *path);
 
+
+/*MAIN*/
 int main(){
     char directory[] = STUDENTS_DIR;
     directory[strlen(STUDENTS_DIR) - 1] = '\0'; /*Delete the character '/' from "estudiantes/"*/
@@ -22,6 +35,7 @@ int main(){
     return EXIT_FAILURE;
 }
 
+/*DEFINITION OF FUNCTIONS*/
 int remove_directory(char *path) {
     DIR *dir_stream = opendir(path);
     struct dirent *file;

@@ -1,12 +1,24 @@
-#include "definitions.h"
+/*Code written by Francisco Jesús Díaz Pellejero
+  Email: FcoJesus.Diaz@alu.uclm.es
+  Github repository source code: https://github.com/FcoJesusDiaz/SSOO-p1.git
+  ---------------------------------------------------------------------------------
+  Code related to the pc process. It will compute the neccesary grade for each student and
+  it will send the average score of the first exam through a pipe. The write end of
+  the pipe is the standard output. */
 
+/*HEADERS*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
+#include "definitions.h"
+
+/*DECLARATION OF FUNCTIONS*/
 void compute_neccesary_grade(char *dni, char *model, char *first_grade);
 
+
+/*MAIN*/
 int main(int argc, char **argv){
     FILE *fptr = fopen(STUDENTS_INFO, "r");
     char *dni = NULL;
@@ -32,6 +44,7 @@ int main(int argc, char **argv){
     return EXIT_SUCCESS;
 }
 
+/*DEFINITION OF FUNCTIONS*/
 void compute_neccesary_grade(char *dni, char *model, char *first_grade){
     FILE *fp;
     int neccesary_grade = NUM_EXAMS * MIN_GRADE - atoi(first_grade);
